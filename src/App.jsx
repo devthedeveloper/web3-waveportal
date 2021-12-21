@@ -6,13 +6,14 @@ import abi from './utils/WavePortal.json';
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
     const [allWaves, setAllWaves] = useState([]);
+    const [waveMessage,setWaveMessage] = useState("Hello!!");
 
 
   const [totalWaves, setTotalWaves] = useState(0)
   /**
    * Create a varaible here that holds the contract address after you deploy!
    */
-  const contractAddress = "0x64d9465076E1cef7c9702CfcE62675f499064059";
+  const contractAddress = "0xf7396Cc2CB18cC9Ba821006cc9F6e42D620c41a1";
   const contractABI = abi.abi;
   
   const checkIfWalletIsConnected = async () => {
@@ -72,7 +73,7 @@ const App = () => {
         let count = await wavePortalContract.getTotalWaves();
         console.log("Retrieved total wave count...", count.toNumber());
 
-        const waveTxn = await wavePortalContract.wave("Hello this is me");
+        const waveTxn = await wavePortalContract.wave(waveMessage,{ gasLimit: 300000 });
         console.log("Mining...", waveTxn.hash);
 
         await waveTxn.wait();
@@ -81,6 +82,8 @@ const App = () => {
         count = await wavePortalContract.getTotalWaves();
         console.log("Retrieved total wave count...", count.toNumber());
         setTotalWaves(count.toNumber())
+        setWaveMessage("");
+        await getAllWaves()
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -108,11 +111,13 @@ const App = () => {
          * pick those out
          */
         let wavesCleaned = [];
+        console.log(waves)
         waves.forEach(wave => {
           wavesCleaned.push({
             address: wave.waver,
             timestamp: new Date(wave.timestamp * 1000),
-            message: wave.message
+            message: wave.message,
+            won:wave.won
           });
         });
 
@@ -140,8 +145,12 @@ const App = () => {
         </div>
 
         <div className="bio">
-          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+          I am Dhruv and I am Blockchain Developer so that's pretty cool right? Connect your Ethereum wallet and wave at me!
         </div>
+
+        <input type="text" onChange={e=>setWaveMessage(e.target.value)}/>
+
+        
 
         <button className="waveButton" onClick={wave}>
           Wave at Me
@@ -159,6 +168,7 @@ const App = () => {
               <div>Address: {wave.address}</div>
               <div>Time: {wave.timestamp.toString()}</div>
               <div>Message: {wave.message}</div>
+              <div>Won Eth: {wave.won?"Yes":"No"}</div>
             </div>)
         })}
       </div>
